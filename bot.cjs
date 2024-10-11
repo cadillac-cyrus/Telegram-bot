@@ -131,7 +131,7 @@ const analyzeFileWithOpenAI = async (fileContent, userId, contextType) => {
                 { role: "user", content: "Please analyze this content: " + fileContent },
             ],
             temperature: 0.7,
-            max_tokens: 150,
+            max_tokens: 350,
         });
         return response.choices[0].message.content;
     } catch (error) {
@@ -139,6 +139,24 @@ const analyzeFileWithOpenAI = async (fileContent, userId, contextType) => {
         return "I'm sorry, I couldn't analyze the file.";
     }
 };
+
+// Function to split a long message into chunks of a specific size
+const splitMessage = (message, chunkSize = 4000) => {
+    const chunks = [];
+    for (let i = 0; i < message.length; i += chunkSize) {
+        chunks.push(message.slice(i, i + chunkSize));
+    }
+    return chunks;
+};
+
+// Send the bot response in chunks
+const sendMessageInChunks = async (chatId, message) => {
+    const chunks = splitMessage(message);
+    for (const chunk of chunks) {
+        await bot.sendMessage(chatId, chunk);
+    }
+};
+
 
 // Function to handle text messages (chatbot functionality)
 const handleTextMessage = async (msg) => {
@@ -161,11 +179,14 @@ const handleTextMessage = async (msg) => {
                 { role: "user", content: userMessage },
             ],
             temperature: 0.7,
-            max_tokens: 150,
+            max_tokens: 8000, // Increased max tokens for longer responses
         });
 
         const botResponse = response.choices[0].message.content;
-        await bot.sendMessage(chatId, botResponse);
+
+        // Send the response in chunks if it's too long
+        await sendMessageInChunks(chatId, botResponse);
+
     } catch (error) {
         console.error('Error processing text message:', error);
         bot.sendMessage(chatId, "I'm sorry, I couldn't process your request.");
