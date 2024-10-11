@@ -5,6 +5,7 @@ const pdf = require('pdf-parse'); // For reading PDF files
 const Tesseract = require('tesseract.js'); // For OCR
 const OpenAI = require('openai'); // OpenAI library
 const { readFileSync, writeFileSync, existsSync } = require('fs'); // For file operations
+const port = process.env.PORT || 4000;
 
 // Replace with your own Telegram bot token and OpenAI API key
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -210,5 +211,9 @@ bot.on('message', async (msg) => {
         await handleDocument(msg); // Handle document uploads
     }
 });
+
+app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`)
+  })
 
 console.log('Telegram bot is running...');
