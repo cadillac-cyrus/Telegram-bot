@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp QR and Logs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #qr-code {
+            display: flex;
+            padding: 20px;
+            width: 50%;
+            gap: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        #logs {
+            background-color: #fff;
+            padding: 10px;
+            border: 1px solid #ddd;
+            height: 300px;
+            overflow-y: auto;
+        }
+
+        .qr-code-img {
+            display: block;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>WhatsApp Web QR Code and Logs</h1>
+    <div id="qr-code"></div>
+    <h2>Logs</h2>
+    <div id="logs"></div>
+
+    <script>
+        const qrCodeElement = document.getElementById('qr-code');
+        const logsElement = document.getElementById('logs');
+
+        // const ws = new WebSocket('ws://localhost:3000'); // Connect to WebSocket
+        const ws = new WebSocket(`ws://${window.location.host}`); // Automatically matches the domain and port where the page is hosted
+        console.log(window.location.host)
+        /**
+         * Handles WebSocket messages sent from the server.
+         * @param {MessageEvent} event - The message event from the WebSocket.
+         * @listens ws#message
+         * 
+          This code snippet handles incoming WebSocket messages from a server. When a message is received, it checks the message type:
+
+            * If the type is `'qr'`, it creates a new QR code image element, sets its source to a generated QR code URL, and appends it to the `qrCodeElement` container.
+            * If the type is `'log'`, it creates a new log entry element, sets its text content to the message data, appends it to the `logsElement` container, and auto-scrolls the container to the bottom.
+         */
+        ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+
+            if (message.type === 'qr') {
+                // Display each QR code without removing previous ones
+                const qrImg = document.createElement('img');
+                qrImg.src = `${message.data}`;
+                qrImg.classList.add('qr-code-img'); // Add class for styling
+                qrCodeElement.appendChild(qrImg); // Append instead of clearing
+            }
+
+            if (message.type === 'log') {
+                // Display the log
+                const logEntry = document.createElement('div');
+                logEntry.textContent = message.data;
+                logsElement.appendChild(logEntry);
+                logsElement.scrollTop = logsElement.scrollHeight; // Auto-scroll to the bottom
+            }
+        };
+    </script>
+</body>
+
+</html>
