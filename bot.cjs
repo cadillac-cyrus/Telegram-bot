@@ -6,6 +6,8 @@ const Tesseract = require('tesseract.js'); // For OCR
 const OpenAI = require('openai'); // OpenAI library
 const { readFileSync, writeFileSync, existsSync } = require('fs'); // For file operations
 const port = process.env.PORT || 4000;
+const express = require('express')
+const app = express()
 
 // Replace with your own Telegram bot token and OpenAI API key
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
